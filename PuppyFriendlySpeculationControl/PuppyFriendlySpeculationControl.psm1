@@ -118,16 +118,19 @@ function Get-SuggestedActions {
     )
     
     [string[]]$actions = $(
-        if ($StatusObject.btiHardwarePresent -eq $false) {
+        if (-not $StatusObject.btiHardwarePresent) {
             "Install BIOS/firmware update provided by your device OEM that enables hardware support for the branch target injection mitigation."
         }
 
-        if ($StatusObject.btiWindowsSupportPresent -eq $false -or $StatusObject.kvaShadowPresent -eq $false) {
+        if ((-not $StatusObject.btiWindowsSupportPresent) -or (-not $StatusObject.kvaShadowPresent)) {
             "Install the latest available updates for Windows with support for speculation control mitigations."
         }
 
-        if ($StatusObject.btiWindowsSupportEnabled -eq $false -or ($StatusObject.kvaShadowRequired -eq $true -and $StatusObject.kvaShadowEnabled -eq $false)) {
-            "Follow the guidance for enabling Windows support for speculation control mitigations are described in https://support.microsoft.com/help/4072698"
+        if ($StatusObject.btiHardwarePresent -and (-not $StatusObject.btiWindowsSupportEnabled) -or ($StatusObject.kvaShadowRequired -and (-not $StatusObject.kvaShadowEnabled))) {
+            $HostOSType = @(@('Server','4072698'),@('Client','4073119'))
+            $os = Get-WmiObject Win32_OperatingSystem
+
+            "Follow the guidance for enabling Windows {0} support for speculation control mitigations described in https://support.microsoft.com/help/{1}" -f $HostOSType[[int]($os.ProductType -eq 1)]
         }
     )
 
@@ -268,7 +271,7 @@ function Test-KVA {
             Write-Verbose " > Windows OS support for kernel VA shadow is enabled: $($StatusObject.Value.kvaShadowEnabled)"
 
             if ($StatusObject.Value.kvaShadowEnabled) {
-                Write-Verbose "Windows OS support for PCID optimization is enabled: $($StatusObject.Value.kvaShadowPcidEnabled)"
+                Write-Verbose "Windows OS support for PCID optimization is enabled: $($StatusObject.Value.kvaShadowPcidEnabled) [not required for security]"
             }
         }
     }
