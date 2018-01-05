@@ -86,7 +86,7 @@ function Get-ProcessorInfo {
         [Parameter(Mandatory=$true)]
         [ref]$StatusObject
     )
-    $cpu = Get-WmiObject Win32_Processor
+    $cpu = Get-WmiObject Win32_Processor | select -first 1
 
     if ($cpu.Manufacturer -eq "AuthenticAMD") {
         $StatusObject.Value.kvaShadowRequired = $false
