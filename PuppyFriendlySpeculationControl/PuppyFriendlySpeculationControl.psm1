@@ -13,7 +13,7 @@
 
   [CmdletBinding()]
   Param (
-
+	  [switch]$silent
   )
     Begin {
         try {
@@ -61,7 +61,7 @@
             Write-Verbose ''
             
             # Provide guidance as appropriate.
-            Get-SuggestedActions -StatusObject $StatusObject
+            Get-SuggestedActions -StatusObject $StatusObject -silent:$silent
         
             return $StatusObject
 
@@ -114,7 +114,9 @@ function Get-SuggestedActions {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
-        [hashtable]$StatusObject
+        [hashtable]$StatusObject,
+		[Parameter()]
+		[switch]$silent
     )
     
     [string[]]$actions = $(
@@ -135,10 +137,10 @@ function Get-SuggestedActions {
     )
 
     if ($actions.Length -gt 0) {
-        Write-Verbose "Suggested actions" -Verbose
+        Write-Verbose "Suggested actions" -Verbose:$(!$silent)
 
         foreach ($action in $actions) {
-            Write-Verbose " * $action" -Verbose
+            Write-Verbose " * $action" -Verbose:$(!$silent)
         }
     }
 }
