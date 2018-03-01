@@ -260,7 +260,7 @@ function Test-KVA {
                 $StatusObject.Value[$_] = (($flags -band $kvaFlags[$_]) -ne 0)
             }
 
-            $kvaFlags.kvaShadowPresent = $true
+            $StatusObject.Value['kvaShadowPresent'] = $true
 
         }
     }
